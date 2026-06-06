@@ -9,8 +9,6 @@ type Params = {
 export default async function ArtifactPage({ params }: Params) {
   const { id } = await params;
 
-  let svgExists = false;
-
   try {
     const db = getFirestoreDb();
     const doc = await db.collection(getArtifactCollection()).doc(id).get();
@@ -23,12 +21,7 @@ export default async function ArtifactPage({ params }: Params) {
     if (!data || typeof data.svg !== "string") {
       notFound();
     }
-    svgExists = true;
   } catch {
-    notFound();
-  }
-
-  if (!svgExists) {
     notFound();
   }
 

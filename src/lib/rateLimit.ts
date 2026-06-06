@@ -9,6 +9,18 @@ export function checkRateLimit(key: string): boolean {
   const windowMs = Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60_000);
   const maxRequests = Number(process.env.RATE_LIMIT_MAX_REQUESTS ?? 30);
   const now = Date.now();
+  const expiredKeys: string[] = [];
+
+  for (const [bucketKey, bucket] of buckets) {
+    if (bucket.resetAt <= now) {
+      expiredKeys.push(bucketKey);
+    }
+  }
+
+  for (const bucketKey of expiredKeys) {
+    buckets.delete(bucketKey);
+  }
+
   const current = buckets.get(key);
 
   if (!current || current.resetAt <= now) {
@@ -19,8 +31,6 @@ export function checkRateLimit(key: string): boolean {
   if (current.count >= maxRequests) {
     return false;
   }
-
   current.count += 1;
-  buckets.set(key, current);
   return true;
 }

@@ -10,7 +10,6 @@
     "test": "tsx --test src/lib/aa/*.test.ts"
   },
   "dependencies": {
-    "firebase": "^12.14.0",
     "firebase-admin": "^13.10.0",
     "nanoid": "^5.1.11",
     "next": "16.2.7",

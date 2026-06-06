@@ -14,6 +14,8 @@ export const DEFAULT_TAB_SIZE = 2;
 export const DEFAULT_MAX_CHARS = 12000;
 export const DEFAULT_MAX_LINES = 400;
 
+export class ValidationError extends Error {}
+
 export function normalizeAa(
   input: string,
   options: NormalizeOptions = {},
@@ -23,18 +25,18 @@ export function normalizeAa(
   const maxLines = options.maxLines ?? DEFAULT_MAX_LINES;
 
   if (tabSize < 1 || !Number.isInteger(tabSize)) {
-    throw new Error("tabSize must be a positive integer");
+    throw new ValidationError("tabSize must be a positive integer");
   }
 
   if (input.length > maxChars) {
-    throw new Error(`Input exceeds max characters (${maxChars})`);
+    throw new ValidationError(`Input exceeds max characters (${maxChars})`);
   }
 
   const normalizedBreaks = input.replace(/\r\n?/g, "\n");
   const lines = normalizedBreaks.split("\n");
 
   if (lines.length > maxLines) {
-    throw new Error(`Input exceeds max lines (${maxLines})`);
+    throw new ValidationError(`Input exceeds max lines (${maxLines})`);
   }
 
   const tabSpaces = " ".repeat(tabSize);

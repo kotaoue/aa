@@ -4,6 +4,7 @@ import {
   DEFAULT_MAX_LINES,
   DEFAULT_TAB_SIZE,
   normalizeAa,
+  ValidationError,
 } from "@/lib/aa/normalize";
 import { renderSvg } from "@/lib/aa/renderSvg";
 import { AA_METRICS } from "@/lib/aa/metrics";
@@ -12,7 +13,11 @@ import { createShortId } from "@/lib/id";
 import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip =
+    request.headers.get("x-vercel-ip") ??
+    request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
 
   if (!checkRateLimit(ip)) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to generate SVG";
-    const status = message.includes("exceeds") || message.includes("tabSize") ? 400 : 500;
+    const status = error instanceof ValidationError ? 400 : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }
