@@ -89,6 +89,21 @@ function generateThreadId(seed: number): string {
   return id;
 }
 
+function generateDistinctThreadIds(seed: number, count: number): string[] {
+  const ids: string[] = [];
+  let value = seed >>> 0;
+
+  while (ids.length < count) {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    const candidate = generateThreadId(value ^ ((ids.length + 1) * 0x9e3779b9));
+    if (!ids.includes(candidate)) {
+      ids.push(candidate);
+    }
+  }
+
+  return ids;
+}
+
 export default function Home() {
   const [text, setText] = useState(sample);
   const [error, setError] = useState<string | null>(null);
@@ -97,16 +112,21 @@ export default function Home() {
     const post1At = new Date(now.getTime() - 60 * 60 * 1000);
     const seed = now.getTime() >>> 0;
 
-    const post2DeltaSeconds = seed % (15 * 60 + 1);
+    const post2DeltaSeconds = seed % (5 * 60 + 1);
     const post2At = new Date(post1At.getTime() + post2DeltaSeconds * 1000);
 
-    const maxGapToNowSeconds = Math.max(1, Math.floor((now.getTime() - post2At.getTime()) / 1000) - 1);
-    const post3DeltaSeconds = ((seed * 1103515245 + 12345) >>> 0) % maxGapToNowSeconds;
+    const nowMinusFiveMin = new Date(now.getTime() - 5 * 60 * 1000);
+    const maxPost3GapSeconds = Math.max(
+      1,
+      Math.floor((nowMinusFiveMin.getTime() - post2At.getTime()) / 1000),
+    );
+    const post3DeltaSeconds = ((seed * 1103515245 + 12345) >>> 0) % maxPost3GapSeconds;
     const post3At = new Date(post2At.getTime() + (post3DeltaSeconds + 1) * 1000);
 
-    const threadId1 = generateThreadId(seed);
-    const threadId2 = generateThreadId(seed ^ 0x9e3779b9);
-    const threadId3 = generateThreadId(seed ^ 0x243f6a88);
+    const post4DeltaSeconds = (((seed ^ 0xa5a5a5a5) * 2246822519) >>> 0) % 60;
+    const post4At = new Date(post3At.getTime() + (post4DeltaSeconds + 1) * 1000);
+
+    const [threadId1, threadId2, threadId3, threadId4] = generateDistinctThreadIds(seed, 4);
 
     return {
       post1Date: formatDateWithWeekday(post1At),
@@ -115,9 +135,12 @@ export default function Home() {
       post2Time: formatTime(post2At),
       post3Date: formatDateWithWeekday(post3At),
       post3Time: formatTime(post3At),
+      post4Date: formatDateWithWeekday(post4At),
+      post4Time: formatTime(post4At),
       threadId1,
       threadId2,
       threadId3,
+      threadId4,
     };
   });
 
@@ -210,8 +233,8 @@ export default function Home() {
 
       <div className="space-y-1 text-sm text-zinc-600">
         <p>
-          4: <span className="font-bold text-green-600">名無しさん</span> 2026/06/27(土) 16:51:36
-          {" "}ID:OzSpKnWF
+          4: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.post4Date}{" "}
+          {threadMeta.post4Time} ID:{threadMeta.threadId4}
         </p>
         <p>誰得</p>
       </div>
