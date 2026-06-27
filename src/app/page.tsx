@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import {
   DEFAULT_MAX_CHARS,
   DEFAULT_MAX_LINES,
@@ -17,11 +16,6 @@ const sample = `　 ∧＿∧
 　( つ旦O
 　と＿)_)
 `;
-
-type GenerateResponse = {
-  width: number;
-  height: number;
-};
 
 type MeasuredSvgDimensions = {
   width: number;
@@ -68,22 +62,14 @@ function measureSvgDimensions(lines: string[]): MeasuredSvgDimensions {
 export default function Home() {
   const [text, setText] = useState(sample);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<GenerateResponse | null>(null);
-  const [svgObjectUrl, setSvgObjectUrl] = useState<string | null>(null);
+  const [downloaded, setDownloaded] = useState(false);
 
   const hasText = text.length > 0;
-
-  useEffect(() => {
-    return () => {
-      if (svgObjectUrl) {
-        URL.revokeObjectURL(svgObjectUrl);
-      }
-    };
-  }, [svgObjectUrl]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setDownloaded(false);
 
     try {
       const normalized = normalizeAa(text, {
@@ -98,16 +84,16 @@ export default function Home() {
         lineHeight: dimensions.lineHeight,
       });
 
-      if (svgObjectUrl) {
-        URL.revokeObjectURL(svgObjectUrl);
-      }
-
       const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-      setSvgObjectUrl(URL.createObjectURL(blob));
-      setResult({
-        width: dimensions.width,
-        height: dimensions.height,
-      });
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = "aa.svg";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      setDownloaded(true);
     } catch (err) {
       const message =
         err instanceof ValidationError
@@ -116,7 +102,7 @@ export default function Home() {
             ? err.message
             : "Failed to generate";
       setError(message);
-      setResult(null);
+      setDownloaded(false);
     }
   }
 
@@ -145,42 +131,12 @@ export default function Home() {
           disabled={!hasText}
           className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          Generate SVG
+          Generate & Download SVG
         </button>
       </form>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-      {result ? (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Preview</h2>
-
-          <div className="rounded border border-zinc-200 p-3 text-sm">
-            {svgObjectUrl ? (
-              <Image
-                src={svgObjectUrl}
-                alt="Generated AA preview"
-                className="h-auto max-w-full"
-                width={result.width}
-                height={result.height}
-                unoptimized
-              />
-            ) : null}
-          </div>
-
-          <div className="flex items-center gap-3">
-            {svgObjectUrl ? (
-              <a
-                href={svgObjectUrl}
-                download="aa.svg"
-                className="rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
-              >
-                Download SVG
-              </a>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
+      {downloaded ? <p className="text-sm text-zinc-700">Downloaded aa.svg</p> : null}
     </main>
   );
 }
