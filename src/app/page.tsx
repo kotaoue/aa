@@ -108,8 +108,17 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-2xl font-semibold">aa2svg</h1>
-      <p className="text-sm text-zinc-600">Paste AA, generate stable SVG, and copy embed-ready links.</p>
+      <h1 className="text-2xl font-semibold">【悲報】最近のブラウザだとAAがずれるンゴ</h1>
+      <div className="space-y-1 text-sm text-zinc-600">
+        <p>
+          1: <span className="font-bold text-green-600">名無しさん</span> 2026/06/19(金) 14:08:55 ID:D54j
+        </p>
+        <p>最近の若い子との会話もズレるンゴ</p>
+        <p>
+          2: <span className="font-bold text-green-600">名無しさん</span> 2026/06/19(金) 14:08:55 ID:D54j
+        </p>
+        <p>昔からズレてるだろ</p>
+      </div>
 
       <form className="flex flex-col gap-3" onSubmit={onSubmit}>
         <textarea
