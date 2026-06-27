@@ -100,13 +100,15 @@ export default function Home() {
     const seed = now.getTime() >>> 0;
     const randomOffset = ((seed * 2654435761) >>> 0) % (rangeMs + 1);
     const randomWithinLastHour = new Date(oneHourAgo.getTime() + randomOffset);
-    const threadId = generateThreadId(seed);
+    const threadId1 = generateThreadId(seed);
+    const threadId2 = generateThreadId(seed ^ 0x9e3779b9);
 
     return {
       today: formatDateWithWeekday(now),
       oneHourAgoTime: formatTime(oneHourAgo),
       randomTime: formatTime(randomWithinLastHour),
-      threadId,
+      threadId1,
+      threadId2,
     };
   });
 
@@ -158,12 +160,12 @@ export default function Home() {
       <div className="space-y-1 text-sm text-zinc-600">
         <p>
           1: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.today}{" "}
-          {threadMeta.oneHourAgoTime} ID:{threadMeta.threadId}
+          {threadMeta.oneHourAgoTime} ID:{threadMeta.threadId1}
         </p>
         <p className="mb-6">最近の若い子との会話もズレるンゴ</p>
         <p>
           2: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.today}{" "}
-          {threadMeta.randomTime} ID:{threadMeta.threadId}
+          {threadMeta.randomTime} ID:{threadMeta.threadId2}
         </p>
         <p>昔からズレてるだろ</p>
       </div>
