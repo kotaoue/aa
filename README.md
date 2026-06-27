@@ -14,11 +14,8 @@ AA often collapses in Markdown/README rendering because proportional fonts and w
   - `font-family: 'MS PGothic', 'ＭＳ Ｐゴシック', monospace;`
   - `font-size: 16pt`
   - deterministic dimensions from fixed cell metrics
-- Firestore persistence and short permalink IDs
-- Permalink page: `/a/[id]`
-- Raw SVG API: `/api/svg/[id]`
-- Copy-friendly URL and Markdown snippet output
-- Basic payload limits and per-IP rate limiting
+- Client-side generation (no backend persistence)
+- Direct SVG download from the browser
 
 ## Local startup
 
@@ -34,54 +31,16 @@ Then open:
 At this stage, Firestore setup is not required.
 
 - You can start the app and open the UI.
-- Firestore-backed features (generate/persist/permalink fetch) require Firestore env vars.
+- SVG is generated in the browser and can be downloaded directly.
 
 ## Deployment
 
 Deploy as a standard Next.js App Router app.
 
-Set runtime environment variables using the values described in the next section.
+No runtime environment variables are required for the current client-side-only mode.
 
-## Firestore and environment variables
+## Usage
 
-If you want to use generate/persist/permalink features locally, create `.env.local` first:
-
-```bash
-cp .env.example .env.local
-```
-
-Required:
-
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_CLIENT_EMAIL`
-- `FIREBASE_PRIVATE_KEY` (escaped newlines as `\n`)
-
-Optional:
-
-- `FIRESTORE_COLLECTION` (optional)
-- `RATE_LIMIT_*`
-- `MAX_INPUT_*`
-
-For deployment, set the same variables in your hosting platform's environment settings.
-
-## API usage examples
-
-Generate and persist SVG:
-
-```bash
-curl -X POST http://localhost:3000/api/generate \
-  -H 'content-type: application/json' \
-  -d '{"text":"　 ∧＿∧\n　(　・ω・)"}'
-```
-
-Fetch raw SVG by ID:
-
-```bash
-curl http://localhost:3000/api/svg/abc123XY
-```
-
-Markdown embed snippet format:
-
-```md
-![aa](https://your-domain.example/api/svg/<id>)
-```
+1. Paste AA into the textarea.
+2. Click `Generate SVG`.
+3. Click `Download SVG` to save the rendered image.

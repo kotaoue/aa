@@ -1,7 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import {
+  DEFAULT_MAX_CHARS,
+  DEFAULT_MAX_LINES,
+  DEFAULT_TAB_SIZE,
+  normalizeAa,
+  ValidationError,
+} from "@/lib/aa/normalize";
+import { renderSvg } from "@/lib/aa/renderSvg";
 
 const sample = `　 ∧＿∧
 　(　・ω・)
@@ -10,11 +18,8 @@ const sample = `　 ∧＿∧
 `;
 
 type GenerateResponse = {
-  id: string;
-  svgUrl: string;
-  permalinkUrl: string;
-  markdown: string;
-  error?: string;
+  normalizedText: string;
+  svg: string;
 };
 
 function CopyButton({ value }: { value: string }) {
@@ -37,34 +42,49 @@ function CopyButton({ value }: { value: string }) {
 
 export default function Home() {
   const [text, setText] = useState(sample);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GenerateResponse | null>(null);
+  const [svgObjectUrl, setSvgObjectUrl] = useState<string | null>(null);
 
   const hasText = text.length > 0;
 
+  useEffect(() => {
+    return () => {
+      if (svgObjectUrl) {
+        URL.revokeObjectURL(svgObjectUrl);
+      }
+    };
+  }, [svgObjectUrl]);
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
     setError(null);
 
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text }),
-    });
+    try {
+      const normalized = normalizeAa(text, {
+        tabSize: DEFAULT_TAB_SIZE,
+        maxChars: DEFAULT_MAX_CHARS,
+        maxLines: DEFAULT_MAX_LINES,
+      });
+      const svg = renderSvg(normalized.normalized);
 
-    const data = (await response.json()) as GenerateResponse;
+      if (svgObjectUrl) {
+        URL.revokeObjectURL(svgObjectUrl);
+      }
 
-    if (!response.ok || data.error) {
-      setError(data.error ?? "Failed to generate");
+      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      setSvgObjectUrl(URL.createObjectURL(blob));
+      setResult({ normalizedText: normalized.normalized, svg });
+    } catch (err) {
+      const message =
+        err instanceof ValidationError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Failed to generate";
+      setError(message);
       setResult(null);
-      setLoading(false);
-      return;
     }
-
-    setResult(data);
-    setLoading(false);
   }
 
   return (
@@ -82,10 +102,10 @@ export default function Home() {
         />
         <button
           type="submit"
-          disabled={!hasText || loading}
+          disabled={!hasText}
           className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          {loading ? "Generating..." : "Generate SVG"}
+          Generate SVG
         </button>
       </form>
 
@@ -94,34 +114,36 @@ export default function Home() {
       {result ? (
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold">Output</h2>
-          <Image
-            src={result.svgUrl}
-            alt="Generated AA"
-            className="max-w-full border border-zinc-200"
-            width={1200}
-            height={600}
-            unoptimized
-          />
+          {svgObjectUrl ? (
+            <Image
+              src={svgObjectUrl}
+              alt="Generated AA"
+              className="max-w-full border border-zinc-200"
+              width={1200}
+              height={600}
+              unoptimized
+            />
+          ) : null}
 
-          <div className="rounded border border-zinc-200 p-3 text-sm">
-            <p className="mb-2 font-medium">Raw SVG URL</p>
-            <div className="flex items-start justify-between gap-3">
-              <code className="break-all">{result.svgUrl}</code>
-              <CopyButton value={result.svgUrl} />
-            </div>
+          <div className="flex items-center gap-3">
+            {svgObjectUrl ? (
+              <a
+                href={svgObjectUrl}
+                download="aa.svg"
+                className="rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+              >
+                Download SVG
+              </a>
+            ) : null}
+            <CopyButton value={result.svg} />
           </div>
 
           <div className="rounded border border-zinc-200 p-3 text-sm">
-            <p className="mb-2 font-medium">Markdown embed snippet</p>
-            <div className="flex items-start justify-between gap-3">
-              <code className="break-all">{result.markdown}</code>
-              <CopyButton value={result.markdown} />
-            </div>
+            <p className="mb-2 font-medium">Normalized text preview</p>
+            <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs text-zinc-700">
+              {result.normalizedText}
+            </pre>
           </div>
-
-          <a className="text-sm underline" href={result.permalinkUrl}>
-            Open permalink preview
-          </a>
         </section>
       ) : null}
     </main>
