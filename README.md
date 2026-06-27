@@ -20,28 +20,52 @@ AA often collapses in Markdown/README rendering because proportional fonts and w
 - Copy-friendly URL and Markdown snippet output
 - Basic payload limits and per-IP rate limiting
 
-## Local setup
+## Local startup
 
 ```bash
 npm install
-cp .env.example .env.local
 npm run dev
 ```
 
+Then open:
+
+- <http://localhost:3000>
+
+At this stage, Firestore setup is not required.
+
+- You can start the app and open the UI.
+- Firestore-backed features (generate/persist/permalink fetch) require Firestore env vars.
+
+## Deployment
+
+Deploy as a standard Next.js App Router app.
+
+Required runtime environment variables for deployment:
+
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY` (escaped newlines as `\n`)
+
+Optional:
+
+- `FIRESTORE_COLLECTION`
+- `RATE_LIMIT_*`
+- `MAX_INPUT_*`
+
 ## Firestore setup
 
-Set these values in `.env.local`:
+If you want to use generate/persist/permalink features locally, set these values in `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+Then configure:
 
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY` (escaped newlines as `\n`)
 - `FIRESTORE_COLLECTION` (optional)
-
-## Deployment notes
-
-- Deploy as a standard Next.js App Router app.
-- Ensure environment variables for Firebase Admin SDK are available at runtime.
-- Keep `RATE_LIMIT_*` and `MAX_INPUT_*` tuned for your traffic profile.
 
 ## API usage examples
 
