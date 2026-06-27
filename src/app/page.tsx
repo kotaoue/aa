@@ -95,20 +95,30 @@ export default function Home() {
   const [downloaded, setDownloaded] = useState(false);
   const [threadMeta] = useState(() => {
     const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-    const rangeMs = 60 * 60 * 1000;
+    const post1At = new Date(now.getTime() - 60 * 60 * 1000);
     const seed = now.getTime() >>> 0;
-    const randomOffset = ((seed * 2654435761) >>> 0) % (rangeMs + 1);
-    const randomWithinLastHour = new Date(oneHourAgo.getTime() + randomOffset);
+
+    const post2DeltaSeconds = seed % (15 * 60 + 1);
+    const post2At = new Date(post1At.getTime() + post2DeltaSeconds * 1000);
+
+    const maxGapToNowSeconds = Math.max(1, Math.floor((now.getTime() - post2At.getTime()) / 1000) - 1);
+    const post3DeltaSeconds = ((seed * 1103515245 + 12345) >>> 0) % maxGapToNowSeconds;
+    const post3At = new Date(post2At.getTime() + (post3DeltaSeconds + 1) * 1000);
+
     const threadId1 = generateThreadId(seed);
     const threadId2 = generateThreadId(seed ^ 0x9e3779b9);
+    const threadId3 = generateThreadId(seed ^ 0x243f6a88);
 
     return {
-      today: formatDateWithWeekday(now),
-      oneHourAgoTime: formatTime(oneHourAgo),
-      randomTime: formatTime(randomWithinLastHour),
+      post1Date: formatDateWithWeekday(post1At),
+      post1Time: formatTime(post1At),
+      post2Date: formatDateWithWeekday(post2At),
+      post2Time: formatTime(post2At),
+      post3Date: formatDateWithWeekday(post3At),
+      post3Time: formatTime(post3At),
       threadId1,
       threadId2,
+      threadId3,
     };
   });
 
@@ -159,15 +169,23 @@ export default function Home() {
       <h1 className="text-2xl font-semibold">【悲報】最近のブラウザだとAAがずれるンゴ</h1>
       <div className="space-y-1 text-sm text-zinc-600">
         <p>
-          1: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.today}{" "}
-          {threadMeta.oneHourAgoTime} ID:{threadMeta.threadId1}
+          1: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.post1Date}{" "}
+          {threadMeta.post1Time} ID:{threadMeta.threadId1}
         </p>
         <p className="mb-6">最近の若い子との会話もズレるンゴ</p>
         <p>
-          2: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.today}{" "}
-          {threadMeta.randomTime} ID:{threadMeta.threadId2}
+          2: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.post2Date}{" "}
+          {threadMeta.post2Time} ID:{threadMeta.threadId2}
         </p>
         <p>昔からズレてるだろ</p>
+      </div>
+
+      <div className="space-y-1 text-sm text-zinc-600">
+        <p>
+          3: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.post3Date}{" "}
+          {threadMeta.post3Time} ID:{threadMeta.threadId3}
+        </p>
+        <p>下のテキストボックスにAA入力したらいい感じに変換してやんよ</p>
       </div>
 
       <form className="flex flex-col gap-3" onSubmit={onSubmit}>
