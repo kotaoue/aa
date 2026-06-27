@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import {
   DEFAULT_MAX_CHARS,
@@ -18,8 +19,8 @@ const sample = `　 ∧＿∧
 `;
 
 type GenerateResponse = {
-  normalizedText: string;
-  svg: string;
+  width: number;
+  height: number;
 };
 
 type MeasuredSvgDimensions = {
@@ -104,8 +105,8 @@ export default function Home() {
       const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
       setSvgObjectUrl(URL.createObjectURL(blob));
       setResult({
-        normalizedText: normalized.normalized,
-        svg,
+        width: dimensions.width,
+        height: dimensions.height,
       });
     } catch (err) {
       const message =
@@ -155,16 +156,16 @@ export default function Home() {
           <h2 className="text-lg font-semibold">Preview</h2>
 
           <div className="rounded border border-zinc-200 p-3 text-sm">
-            <pre
-              className="overflow-x-auto whitespace-pre text-zinc-800"
-              style={{
-                fontFamily: "'ＭＳ Ｐゴシック', 'MS PGothic', '梅Pゴシック', Textar, sans-serif",
-                fontSize: "16px",
-                lineHeight: "1.1",
-              }}
-            >
-              {result.normalizedText}
-            </pre>
+            {svgObjectUrl ? (
+              <Image
+                src={svgObjectUrl}
+                alt="Generated AA preview"
+                className="h-auto max-w-full"
+                width={result.width}
+                height={result.height}
+                unoptimized
+              />
+            ) : null}
           </div>
 
           <div className="flex items-center gap-3">
