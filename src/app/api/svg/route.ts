@@ -6,7 +6,7 @@ import {
     ValidationError,
     normalizeAa,
 } from "@/lib/aa/normalize";
-import { renderOutlinedSvg } from "@/lib/aa/renderOutlinedSvg";
+import { renderSvg } from "@/lib/aa/renderSvg";
 
 export const runtime = "nodejs";
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
             maxChars: DEFAULT_MAX_CHARS,
             maxLines: DEFAULT_MAX_LINES,
         });
-        const svg = await renderOutlinedSvg(normalized.normalized);
+        const svg = renderSvg(normalized.normalized);
 
         return new NextResponse(svg, {
             headers: {
