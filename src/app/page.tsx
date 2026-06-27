@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import {
   DEFAULT_MAX_CHARS,
@@ -21,8 +20,6 @@ const sample = `　 ∧＿∧
 type GenerateResponse = {
   normalizedText: string;
   svg: string;
-  width: number;
-  height: number;
 };
 
 type MeasuredSvgDimensions = {
@@ -67,24 +64,6 @@ function measureSvgDimensions(lines: string[]): MeasuredSvgDimensions {
   };
 }
 
-function CopyButton({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  return (
-    <button
-      type="button"
-      className="rounded border border-zinc-300 px-2 py-1 text-xs"
-      onClick={async () => {
-        await navigator.clipboard.writeText(value);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1000);
-      }}
-    >
-      {copied ? "Copied" : "Copy"}
-    </button>
-  );
-}
-
 export default function Home() {
   const [text, setText] = useState(sample);
   const [error, setError] = useState<string | null>(null);
@@ -127,8 +106,6 @@ export default function Home() {
       setResult({
         normalizedText: normalized.normalized,
         svg,
-        width: dimensions.width,
-        height: dimensions.height,
       });
     } catch (err) {
       const message =
@@ -175,17 +152,20 @@ export default function Home() {
 
       {result ? (
         <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Output</h2>
-          {svgObjectUrl ? (
-            <Image
-              src={svgObjectUrl}
-              alt="Generated AA"
-              className="h-auto max-w-full border border-zinc-200"
-              width={result.width}
-              height={result.height}
-              unoptimized
-            />
-          ) : null}
+          <h2 className="text-lg font-semibold">Preview</h2>
+
+          <div className="rounded border border-zinc-200 p-3 text-sm">
+            <pre
+              className="overflow-x-auto whitespace-pre text-zinc-800"
+              style={{
+                fontFamily: "'ＭＳ Ｐゴシック', 'MS PGothic', '梅Pゴシック', Textar, sans-serif",
+                fontSize: "16px",
+                lineHeight: "1.1",
+              }}
+            >
+              {result.normalizedText}
+            </pre>
+          </div>
 
           <div className="flex items-center gap-3">
             {svgObjectUrl ? (
@@ -197,14 +177,6 @@ export default function Home() {
                 Download SVG
               </a>
             ) : null}
-            <CopyButton value={result.svg} />
-          </div>
-
-          <div className="rounded border border-zinc-200 p-3 text-sm">
-            <p className="mb-2 font-medium">Normalized text preview</p>
-            <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs text-zinc-700">
-              {result.normalizedText}
-            </pre>
           </div>
         </section>
       ) : null}
