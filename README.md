@@ -2,6 +2,8 @@
 
 aa2svg is a small web service that converts Japanese ASCII art (AA) into stable SVG images.
 
+Downloaded SVGs are outlined before export so README embeds do not depend on GitHub loading a specific web font.
+
 ## Why SVG for AA in Markdown?
 
 AA often collapses in Markdown/README rendering because proportional fonts and whitespace handling vary by platform. SVG with fixed metrics and `xml:space="preserve"` keeps line alignment stable, so embeds remain faithful.
@@ -14,8 +16,8 @@ AA often collapses in Markdown/README rendering because proportional fonts and w
   - `font-family: 'MS PGothic', 'ＭＳ Ｐゴシック', monospace;`
   - `font-size: 16pt`
   - deterministic dimensions from fixed cell metrics
-- Client-side generation (no backend persistence)
-- Direct SVG download from the browser
+- outlined SVG download using a bundled local font
+- client-side generation with no backend persistence
 
 ## Local startup
 
@@ -37,7 +39,7 @@ At this stage, Firestore setup is not required.
 
 Deploy as a standard Next.js App Router app.
 
-No runtime environment variables are required for the current client-side-only mode.
+No runtime environment variables are required.
 
 ## Usage
 
