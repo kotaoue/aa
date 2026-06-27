@@ -9,7 +9,7 @@ test("escapeXml escapes XML special chars", () => {
 
 test("calculateSvgDimensions uses deterministic cell metrics", () => {
   const dims = calculateSvgDimensions(["abcd", "xy"]);
-  assert.deepEqual(dims, { width: 63, height: 64 });
+  assert.deepEqual(dims, { width: 36, height: 36 });
 });
 
 test("renderSvg includes preserve-space and tspans", () => {

@@ -1,11 +1,13 @@
-export const FONT_SIZE_PT = 16;
-export const FONT_FAMILY = "'MS PGothic', 'ＭＳ Ｐゴシック', monospace";
+export const FONT_SIZE_PX = 16;
+export const LINE_HEIGHT_RATIO = 1.1;
+export const FONT_FAMILY = "'ＭＳ Ｐゴシック', 'MS PGothic', '梅Pゴシック', Textar, sans-serif";
 
 export const AA_METRICS = {
-  charWidth: 9.6,
-  lineHeight: 20,
-  paddingX: 12,
-  paddingY: 12,
+  // Fallback metrics used when browser-side text measurement is unavailable.
+  charWidth: 8.8,
+  lineHeight: FONT_SIZE_PX * LINE_HEIGHT_RATIO,
+  paddingX: 0,
+  paddingY: 0,
 } as const;
 
 export type SvgDimensions = {

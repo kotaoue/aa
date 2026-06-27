@@ -9,6 +9,7 @@ import {
   normalizeAa,
   ValidationError,
 } from "@/lib/aa/normalize";
+import { AA_METRICS, FONT_FAMILY, FONT_SIZE_PX, LINE_HEIGHT_RATIO } from "@/lib/aa/metrics";
 import { renderSvg } from "@/lib/aa/renderSvg";
 
 const sample = `　 ∧＿∧
@@ -20,7 +21,51 @@ const sample = `　 ∧＿∧
 type GenerateResponse = {
   normalizedText: string;
   svg: string;
+  width: number;
+  height: number;
 };
+
+type MeasuredSvgDimensions = {
+  width: number;
+  height: number;
+  lineHeight: number;
+};
+
+function measureSvgDimensions(lines: string[]): MeasuredSvgDimensions {
+  const safeLines = lines.length > 0 ? lines : [""];
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    const maxChars = safeLines.reduce((max, line) => Math.max(max, [...line].length), 0);
+    return {
+      width: Math.ceil(maxChars * AA_METRICS.charWidth + AA_METRICS.paddingX * 2),
+      height: Math.ceil(safeLines.length * AA_METRICS.lineHeight + AA_METRICS.paddingY * 2),
+      lineHeight: AA_METRICS.lineHeight,
+    };
+  }
+
+  context.font = `${FONT_SIZE_PX}px ${FONT_FAMILY}`;
+
+  const sampleMetrics = context.measureText("あA");
+  const measuredGlyphHeight =
+    sampleMetrics.actualBoundingBoxAscent + sampleMetrics.actualBoundingBoxDescent;
+  const lineHeight = Math.max(
+    FONT_SIZE_PX * LINE_HEIGHT_RATIO,
+    measuredGlyphHeight * LINE_HEIGHT_RATIO,
+  );
+
+  const maxWidth = safeLines.reduce(
+    (max, line) => Math.max(max, context.measureText(line).width),
+    0,
+  );
+
+  return {
+    width: Math.max(1, Math.ceil(maxWidth + AA_METRICS.paddingX * 2)),
+    height: Math.max(1, Math.ceil(safeLines.length * lineHeight + AA_METRICS.paddingY * 2)),
+    lineHeight,
+  };
+}
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
@@ -66,7 +111,12 @@ export default function Home() {
         maxChars: DEFAULT_MAX_CHARS,
         maxLines: DEFAULT_MAX_LINES,
       });
-      const svg = renderSvg(normalized.normalized);
+      const dimensions = measureSvgDimensions(normalized.lines);
+      const svg = renderSvg(normalized.normalized, {
+        width: dimensions.width,
+        height: dimensions.height,
+        lineHeight: dimensions.lineHeight,
+      });
 
       if (svgObjectUrl) {
         URL.revokeObjectURL(svgObjectUrl);
@@ -74,7 +124,12 @@ export default function Home() {
 
       const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
       setSvgObjectUrl(URL.createObjectURL(blob));
-      setResult({ normalizedText: normalized.normalized, svg });
+      setResult({
+        normalizedText: normalized.normalized,
+        svg,
+        width: dimensions.width,
+        height: dimensions.height,
+      });
     } catch (err) {
       const message =
         err instanceof ValidationError
@@ -94,11 +149,18 @@ export default function Home() {
 
       <form className="flex flex-col gap-3" onSubmit={onSubmit}>
         <textarea
-          className="min-h-64 w-full rounded border border-zinc-300 p-3 font-mono text-sm"
+          className="min-h-64 w-full rounded border border-zinc-300 p-3"
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="Paste Japanese ASCII art"
           spellCheck={false}
+          style={{
+            fontFamily: "'ＭＳ Ｐゴシック', 'MS PGothic', '梅Pゴシック', Textar, sans-serif",
+            fontSize: "16px",
+            lineHeight: "1.1",
+            whiteSpace: "pre",
+            overflowWrap: "normal",
+          }}
         />
         <button
           type="submit"
@@ -118,9 +180,9 @@ export default function Home() {
             <Image
               src={svgObjectUrl}
               alt="Generated AA"
-              className="max-w-full border border-zinc-200"
-              width={1200}
-              height={600}
+              className="h-auto max-w-full border border-zinc-200"
+              width={result.width}
+              height={result.height}
               unoptimized
             />
           ) : null}
