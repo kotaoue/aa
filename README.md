@@ -1,6 +1,6 @@
-# aa2svg
+# aa2png
 
-aa2svg is a Next.js app that converts Japanese ASCII art (AA) into stable PNG images.
+aa2png is a Next.js app that converts Japanese ASCII art (AA) into stable PNG images.
 
 To avoid AA breakage caused by font differences across browsers and platforms, rendering is done on the server and returned as PNG. This keeps visual output stable when embedding in README files and other documents.
 
