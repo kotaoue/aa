@@ -129,7 +129,7 @@ export default function Home() {
       const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = objectUrl;
-      link.download = "aa.svg";
+      link.download = "aa.png";
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -189,7 +189,7 @@ export default function Home() {
           disabled={!hasText}
           className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          dat落ちする前にアウトラインSVGをDLしておいてクレメンス
+          dat落ちする前にPNGをDLしておいてクレメンス
         </button>
       </form>
 

@@ -11,6 +11,7 @@ type RenderSvgOptions = {
   lineHeight?: number;
   paddingX?: number;
   paddingY?: number;
+  fontFaceCss?: string;
 };
 
 export function escapeXml(input: string): string {
@@ -49,11 +50,12 @@ export function renderSvg(normalizedText: string, options: RenderSvgOptions = {}
     "    url('https://marmooo.github.io/fonts/textar-light.ttf') format('truetype');",
     "}",
   ].join("\n");
+  const fontFaceCss = options.fontFaceCss ?? embeddedFontCss;
 
   return [
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="ASCII art">`,
-    `<style>${embeddedFontCss}</style>`,
+    `<style>${fontFaceCss}</style>`,
     `<rect width="100%" height="100%" fill="#fff" />`,
     `<text xml:space="preserve" dominant-baseline="text-before-edge" font-family="${FONT_FAMILY}" font-size="${FONT_SIZE_PX}px" fill="#111">${tspans}</text>`,
     "</svg>",
