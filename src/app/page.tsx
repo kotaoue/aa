@@ -208,7 +208,7 @@ export default function Home() {
           disabled={!hasText}
           className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          Generate & Download SVG
+          dat落ちする前に画像はDLしておいてクレメンス
         </button>
       </form>
 
