@@ -8,7 +8,6 @@ import {
   normalizeAa,
   ValidationError,
 } from "@/lib/aa/normalize";
-import { renderOutlinedSvgInBrowser } from "@/lib/aa/renderOutlinedSvgClient";
 
 const sample = `　 ∧＿∧
 　(　・ω・)
@@ -113,8 +112,20 @@ export default function Home() {
         maxChars: DEFAULT_MAX_CHARS,
         maxLines: DEFAULT_MAX_LINES,
       });
-      const svg = await renderOutlinedSvgInBrowser(normalized.normalized);
-      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      const response = await fetch("/api/svg", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ text: normalized.normalized }),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error ?? "Failed to generate");
+      }
+
+      const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = objectUrl;
@@ -178,7 +189,7 @@ export default function Home() {
           disabled={!hasText}
           className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          dat落ちする前に画像はDLしておいてクレメンス
+          dat落ちする前にアウトラインSVGをDLしておいてクレメンス
         </button>
       </form>
 

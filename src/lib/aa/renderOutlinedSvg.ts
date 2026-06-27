@@ -11,7 +11,7 @@ const OUTLINE_FONT_PATH = path.join(
     process.cwd(),
     "public",
     "fonts",
-    "m-plus-1-code-japanese-400-normal.woff",
+    "ipag.ttf",
 );
 
 let fontPromise: Promise<OutlineFont> | null = null;
