@@ -40,7 +40,17 @@ At this stage, Firestore setup is not required.
 
 Deploy as a standard Next.js App Router app.
 
-Required runtime environment variables for deployment:
+Set runtime environment variables using the values described in the next section.
+
+## Firestore and environment variables
+
+If you want to use generate/persist/permalink features locally, create `.env.local` first:
+
+```bash
+cp .env.example .env.local
+```
+
+Required:
 
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
@@ -48,24 +58,11 @@ Required runtime environment variables for deployment:
 
 Optional:
 
-- `FIRESTORE_COLLECTION`
+- `FIRESTORE_COLLECTION` (optional)
 - `RATE_LIMIT_*`
 - `MAX_INPUT_*`
 
-## Firestore setup
-
-If you want to use generate/persist/permalink features locally, set these values in `.env.local`:
-
-```bash
-cp .env.example .env.local
-```
-
-Then configure:
-
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_CLIENT_EMAIL`
-- `FIREBASE_PRIVATE_KEY` (escaped newlines as `\n`)
-- `FIRESTORE_COLLECTION` (optional)
+For deployment, set the same variables in your hosting platform's environment settings.
 
 ## API usage examples
 
