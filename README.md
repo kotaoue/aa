@@ -1,27 +1,35 @@
-# aa2svg
+# aa2png
 
-aa2svg is a small web service that converts Japanese ASCII art (AA) into stable PNG images.
+aa2png is a Next.js app that converts Japanese ASCII art (AA) into stable PNG images.
 
-The server renders AA with a bundled Textar font and returns a PNG, so GitHub README embedding stays visually stable without depending on the viewer's font behavior.
-
-## Why PNG for AA in Markdown?
-
-AA often collapses in Markdown/README rendering because proportional fonts and whitespace handling vary by platform. PNG freezes the final rendered result, so embeds remain faithful regardless of the reader environment.
+To avoid AA breakage caused by font differences across browsers and platforms, rendering is done on the server and returned as PNG. This keeps visual output stable when embedding in README files and other documents.
 
 ## Features
 
-- Single-page AA input + instant output section
-- Normalization for line endings and tabs
-- Server-side rendering with:
-  - bundled `public/fonts/textar.ttf` loaded on the server
-  - `font-size: 16px`
-  - deterministic cell-based dimensions
-  - small outer padding to avoid edge clipping
-  - Textar font licensed under IPA Font License Agreement v1.0
-- PNG generation via server-side API endpoint (`/api/svg`, legacy path name)
-- no backend persistence beyond the request/response cycle
+- One-page UI to input AA and download PNG directly
+- Line-ending normalization (CRLF/CR -> LF)
+- Tab expansion (tab size: 2)
+- Server-side rendering (Node.js runtime)
+- Rendering with Textar font from `public/fonts/textar.ttf`
+- Small outer padding to reduce edge clipping
 
-## Local startup
+## Technical Overview
+
+- Framework: Next.js (App Router)
+- API: `POST /api/svg` (legacy path name remains svg)
+- Output: `image/png` (downloaded as `aa.png`)
+- Rendering library: `@napi-rs/canvas`
+- Persistence: none (request/response only)
+
+## Input Limits
+
+- Max characters: 12000
+- Max lines: 400
+- Tab size: 2
+
+If limits are exceeded, the API returns a 400 error in JSON format.
+
+## Local Setup
 
 ```bash
 npm install
@@ -30,25 +38,59 @@ npm run dev
 
 Then open:
 
-- <http://localhost:3000>
-
-- You can start the app and open the UI.
-- Enter AA, press the button, and the server returns a PNG for direct download.
-
-## Deployment
-
-Deploy as a standard Next.js App Router app.
-
-No runtime environment variables are required.
+- http://localhost:3000
 
 ## Usage
 
 1. Paste AA into the textarea.
 2. Click the download button.
-3. Save the rendered PNG image.
+3. Save the generated `aa.png`.
 
-## Links
+## API Spec (Quick)
 
-- [AAhub](https://aahub.org/)
-- [Textar Font(temporary)](https://yamacraft.github.io/textar-font/)
-- [IPA Font License Agreement v1.0](https://moji.or.jp/ipafont/license/)
+### Request
+
+- Method: `POST`
+- Path: `/api/svg`
+- Content-Type: `application/json`
+- Body:
+
+```json
+{
+  "text": "(AA string here)"
+}
+```
+
+### Response
+
+- Success: `200 image/png`
+- Error: `400 application/json`
+
+```json
+{
+  "error": "Input exceeds max characters (12000)"
+}
+```
+
+## スクリプト
+
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run start`: Start production server
+- `npm run lint`: Run ESLint
+- `npm run test`: Run tests
+
+## Deployment
+
+Deploy as a standard Next.js App Router app.
+
+No required runtime environment variables.
+
+## License and Font
+
+- Textar Font (temporary): https://yamacraft.github.io/textar-font/
+- IPA Font License Agreement v1.0: https://moji.or.jp/ipafont/license/
+
+## References
+
+- AAhub: https://aahub.org/
