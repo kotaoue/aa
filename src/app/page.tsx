@@ -208,6 +208,14 @@ export default function Home() {
         </button>
       </form>
 
+      <div className="space-y-1 text-sm text-zinc-600">
+        <p>
+          4: <span className="font-bold text-green-600">名無しさん</span> 2026/06/27(土) 16:51:36
+          {" "}ID:OzSpKnWF
+        </p>
+        <p>誰得</p>
+      </div>
+
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </main>
   );
