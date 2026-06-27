@@ -113,7 +113,7 @@ export default function Home() {
         <p>
           1: <span className="font-bold text-green-600">名無しさん</span> 2026/06/19(金) 14:08:55 ID:D54j
         </p>
-        <p className="mb-4">最近の若い子との会話もズレるンゴ</p>
+        <p className="mb-6">最近の若い子との会話もズレるンゴ</p>
         <p>
           2: <span className="font-bold text-green-600">名無しさん</span> 2026/06/19(金) 14:08:55 ID:D54j
         </p>
