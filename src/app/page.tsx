@@ -8,56 +8,12 @@ import {
   normalizeAa,
   ValidationError,
 } from "@/lib/aa/normalize";
-import { AA_METRICS, FONT_FAMILY, FONT_SIZE_PX, LINE_HEIGHT_RATIO } from "@/lib/aa/metrics";
-import { renderSvg } from "@/lib/aa/renderSvg";
 
 const sample = `　 ∧＿∧
 　(　・ω・)
 　( つ旦O
 　と＿)_)
 `;
-
-type MeasuredSvgDimensions = {
-  width: number;
-  height: number;
-  lineHeight: number;
-};
-
-function measureSvgDimensions(lines: string[]): MeasuredSvgDimensions {
-  const safeLines = lines.length > 0 ? lines : [""];
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-
-  if (!context) {
-    const maxChars = safeLines.reduce((max, line) => Math.max(max, [...line].length), 0);
-    return {
-      width: Math.ceil(maxChars * AA_METRICS.charWidth + AA_METRICS.paddingX * 2),
-      height: Math.ceil(safeLines.length * AA_METRICS.lineHeight + AA_METRICS.paddingY * 2),
-      lineHeight: AA_METRICS.lineHeight,
-    };
-  }
-
-  context.font = `${FONT_SIZE_PX}px ${FONT_FAMILY}`;
-
-  const sampleMetrics = context.measureText("あA");
-  const measuredGlyphHeight =
-    sampleMetrics.actualBoundingBoxAscent + sampleMetrics.actualBoundingBoxDescent;
-  const lineHeight = Math.max(
-    FONT_SIZE_PX * LINE_HEIGHT_RATIO,
-    measuredGlyphHeight * LINE_HEIGHT_RATIO,
-  );
-
-  const maxWidth = safeLines.reduce(
-    (max, line) => Math.max(max, context.measureText(line).width),
-    0,
-  );
-
-  return {
-    width: Math.max(1, Math.ceil(maxWidth + AA_METRICS.paddingX * 2)),
-    height: Math.max(1, Math.ceil(safeLines.length * lineHeight + AA_METRICS.paddingY * 2)),
-    lineHeight,
-  };
-}
 
 const WEEKDAYS_JA = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -156,14 +112,20 @@ export default function Home() {
         maxChars: DEFAULT_MAX_CHARS,
         maxLines: DEFAULT_MAX_LINES,
       });
-      const dimensions = measureSvgDimensions(normalized.lines);
-      const svg = renderSvg(normalized.normalized, {
-        width: dimensions.width,
-        height: dimensions.height,
-        lineHeight: dimensions.lineHeight,
+      const response = await fetch("/api/svg", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ text: normalized.normalized }),
       });
 
-      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error ?? "Failed to generate");
+      }
+
+      const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = objectUrl;
@@ -227,7 +189,7 @@ export default function Home() {
           disabled={!hasText}
           className="w-fit rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          dat落ちする前に画像はDLしておいてクレメンス
+          dat落ちする前にアウトラインSVGをDLしておいてクレメンス
         </button>
       </form>
 

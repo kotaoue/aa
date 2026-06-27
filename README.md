@@ -2,6 +2,8 @@
 
 aa2svg is a small web service that converts Japanese ASCII art (AA) into stable SVG images.
 
+Downloaded SVGs embed the Textar font via @font-face, with MS PGothic-compatible font-family fallbacks. GitHub and other Markdown renderers can display them correctly without external font dependencies.
+
 ## Why SVG for AA in Markdown?
 
 AA often collapses in Markdown/README rendering because proportional fonts and whitespace handling vary by platform. SVG with fixed metrics and `xml:space="preserve"` keeps line alignment stable, so embeds remain faithful.
@@ -11,11 +13,12 @@ AA often collapses in Markdown/README rendering because proportional fonts and w
 - Single-page AA input + instant output section
 - Normalization for line endings and tabs
 - SVG rendering with:
-  - `font-family: 'MS PGothic', 'ＭＳ Ｐゴシック', monospace;`
-  - `font-size: 16pt`
-  - deterministic dimensions from fixed cell metrics
-- Client-side generation (no backend persistence)
-- Direct SVG download from the browser
+  - Textar web font (@font-face embedded) with MS PGothic fallbacks: `'ＭＳ Ｐゴシック', 'MS PGothic', '梅Pゴシック', Textar, sans-serif`
+  - `font-size: 16px`
+  - deterministic cell-based dimensions
+  - Textar font licensed under IPA Font License Agreement v1.0
+- SVG generation via server-side API endpoint
+- no backend persistence beyond the request/response cycle
 
 ## Local startup
 
@@ -31,13 +34,13 @@ Then open:
 At this stage, Firestore setup is not required.
 
 - You can start the app and open the UI.
-- SVG is generated in the browser and can be downloaded directly.
+- Enter AA, press the button, and the server returns an SVG with embedded Textar font for direct download.
 
 ## Deployment
 
 Deploy as a standard Next.js App Router app.
 
-No runtime environment variables are required for the current client-side-only mode.
+No runtime environment variables are required.
 
 ## Usage
 
@@ -48,3 +51,4 @@ No runtime environment variables are required for the current client-side-only m
 ## Links
 
 - [AAhub](https://aahub.org/)
+- [Textar Font(temporary)](https://yamacraft.github.io/textar-font/)
