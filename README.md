@@ -2,7 +2,7 @@
 
 aa2svg is a small web service that converts Japanese ASCII art (AA) into stable SVG images.
 
-Downloaded SVGs are outlined on the server before export so README embeds do not depend on GitHub loading a specific web font.
+Downloaded SVGs embed the Textar font via @font-face, with MS PGothic-compatible font-family fallbacks. GitHub and other Markdown renderers can display them correctly without external font dependencies.
 
 ## Why SVG for AA in Markdown?
 
@@ -13,10 +13,11 @@ AA often collapses in Markdown/README rendering because proportional fonts and w
 - Single-page AA input + instant output section
 - Normalization for line endings and tabs
 - SVG rendering with:
-  - `font-family: 'MS PGothic', 'ＭＳ Ｐゴシック', monospace;`
-  - `font-size: 16pt`
-  - deterministic dimensions from fixed cell metrics
-- outlined SVG download through a server-side export route
+  - Textar web font (@font-face embedded) with MS PGothic fallbacks: `'ＭＳ Ｐゴシック', 'MS PGothic', '梅Pゴシック', Textar, sans-serif`
+  - `font-size: 16px`
+  - deterministic cell-based dimensions
+  - Textar font licensed under IPA Font License Agreement v1.0
+- SVG generation via server-side API endpoint
 - no backend persistence beyond the request/response cycle
 
 ## Local startup
@@ -33,7 +34,7 @@ Then open:
 At this stage, Firestore setup is not required.
 
 - You can start the app and open the UI.
-- Enter AA, press the button, and the server returns an outlined SVG for direct download.
+- Enter AA, press the button, and the server returns an SVG with embedded Textar font for direct download.
 
 ## Deployment
 
