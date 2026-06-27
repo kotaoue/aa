@@ -47,4 +47,4 @@ No runtime environment variables are required for the current client-side-only m
 
 ## Links
 
-- [](https://aahub.org/)
+- [AAhub](https://aahub.org/)
