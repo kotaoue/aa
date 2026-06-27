@@ -92,7 +92,6 @@ function generateThreadId(seed: number): string {
 export default function Home() {
   const [text, setText] = useState(sample);
   const [error, setError] = useState<string | null>(null);
-  const [downloaded, setDownloaded] = useState(false);
   const [threadMeta] = useState(() => {
     const now = new Date();
     const post1At = new Date(now.getTime() - 60 * 60 * 1000);
@@ -127,7 +126,6 @@ export default function Home() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setDownloaded(false);
 
     try {
       const normalized = normalizeAa(text, {
@@ -151,7 +149,6 @@ export default function Home() {
       link.click();
       link.remove();
       URL.revokeObjectURL(objectUrl);
-      setDownloaded(true);
     } catch (err) {
       const message =
         err instanceof ValidationError
@@ -160,7 +157,6 @@ export default function Home() {
             ? err.message
             : "Failed to generate";
       setError(message);
-      setDownloaded(false);
     }
   }
 
@@ -213,7 +209,6 @@ export default function Home() {
       </form>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {downloaded ? <p className="text-sm text-zinc-700">Downloaded aa.svg</p> : null}
     </main>
   );
 }
