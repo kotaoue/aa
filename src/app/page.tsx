@@ -59,10 +59,56 @@ function measureSvgDimensions(lines: string[]): MeasuredSvgDimensions {
   };
 }
 
+const WEEKDAYS_JA = ["日", "月", "火", "水", "木", "金", "土"];
+
+function formatDateWithWeekday(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const weekday = WEEKDAYS_JA[date.getDay()];
+  return `${year}/${month}/${day}(${weekday})`;
+}
+
+function formatTime(date: Date): string {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+}
+
+function generateThreadId(seed: number): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let value = seed >>> 0;
+  let id = "";
+
+  for (let i = 0; i < 8; i += 1) {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    id += chars[value % chars.length];
+  }
+
+  return id;
+}
+
 export default function Home() {
   const [text, setText] = useState(sample);
   const [error, setError] = useState<string | null>(null);
   const [downloaded, setDownloaded] = useState(false);
+  const [threadMeta] = useState(() => {
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const rangeMs = 60 * 60 * 1000;
+    const seed = now.getTime() >>> 0;
+    const randomOffset = ((seed * 2654435761) >>> 0) % (rangeMs + 1);
+    const randomWithinLastHour = new Date(oneHourAgo.getTime() + randomOffset);
+    const threadId = generateThreadId(seed);
+
+    return {
+      today: formatDateWithWeekday(now),
+      oneHourAgoTime: formatTime(oneHourAgo),
+      randomTime: formatTime(randomWithinLastHour),
+      threadId,
+    };
+  });
 
   const hasText = text.length > 0;
 
@@ -111,11 +157,13 @@ export default function Home() {
       <h1 className="text-2xl font-semibold">【悲報】最近のブラウザだとAAがずれるンゴ</h1>
       <div className="space-y-1 text-sm text-zinc-600">
         <p>
-          1: <span className="font-bold text-green-600">名無しさん</span> 2026/06/19(金) 14:08:55 ID:D54j
+          1: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.today}{" "}
+          {threadMeta.oneHourAgoTime} ID:{threadMeta.threadId}
         </p>
         <p className="mb-6">最近の若い子との会話もズレるンゴ</p>
         <p>
-          2: <span className="font-bold text-green-600">名無しさん</span> 2026/06/19(金) 14:08:55 ID:D54j
+          2: <span className="font-bold text-green-600">名無しさん</span> {threadMeta.today}{" "}
+          {threadMeta.randomTime} ID:{threadMeta.threadId}
         </p>
         <p>昔からズレてるだろ</p>
       </div>
