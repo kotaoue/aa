@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@fontsource/m-plus-1-code": "^5.2.9",
-    "@napi-rs/canvas": "^1.0.1",
+    "@napi-rs/canvas": "^1.0.2",
     "next": "^16.2.10",
     "opentype.js": "^2.0.0",
     "react": "19.2.7",
